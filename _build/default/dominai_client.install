@@ -1,8 +1,0 @@
-lib: [
-  "_build/install/default/lib/dominai_client/META"
-  "_build/install/default/lib/dominai_client/dune-package"
-  "_build/install/default/lib/dominai_client/opam"
-]
-bin: [
-  "_build/install/default/bin/dominai_client"
-]

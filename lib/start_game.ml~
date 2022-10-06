@@ -1,2 +1,0 @@
-type start_game = { kingdom : Card.t list; order : string list }
-[@@deriving yojson]
