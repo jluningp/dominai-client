@@ -72,6 +72,12 @@ let is_victory = function
 
 let is_treasure = function Copper | Silver | Gold -> true | _ -> false
 
+let value_as_treasure = function
+  | Copper -> 1
+  | Silver -> 2
+  | Gold -> 3
+  | _ -> 0
+
 let cost = function
   | Copper -> 0
   | Silver -> 3
