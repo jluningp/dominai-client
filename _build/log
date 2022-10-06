@@ -1,0 +1,121 @@
+# dune build
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Workspace root: /Users/jvanbriesen/dominai_client
+# Auto-detected concurrency: 8
+$ /Users/jvanbriesen/.opam/default/bin/ocamlc.opt -config > /var/folders/g5/d94c5fvj2yg7fbzx5np4cfzr0000gn/T/dune_6ba668_output
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Dev
+#  ; merlin = true
+#  ; for_host = None
+#  ; fdo_target_exe = None
+#  ; build_dir = "default"
+#  ; toplevel_path =
+#      Some External "/Users/jvanbriesen/.opam/default/lib/toplevel"
+#  ; ocaml_bin = External "/Users/jvanbriesen/.opam/default/bin"
+#  ; ocaml = Ok External "/Users/jvanbriesen/.opam/default/bin/ocaml"
+#  ; ocamlc = External "/Users/jvanbriesen/.opam/default/bin/ocamlc.opt"
+#  ; ocamlopt = Ok External "/Users/jvanbriesen/.opam/default/bin/ocamlopt.opt"
+#  ; ocamldep = Ok External "/Users/jvanbriesen/.opam/default/bin/ocamldep.opt"
+#  ; ocamlmklib =
+#      Ok External "/Users/jvanbriesen/.opam/default/bin/ocamlmklib.opt"
+#  ; env =
+#      map
+#        { "DUNE_OCAML_HARDCODED" : "/Users/jvanbriesen/.opam/default/lib"
+#        ; "DUNE_OCAML_STDLIB" : "/Users/jvanbriesen/.opam/default/lib/ocaml"
+#        ; "DUNE_SOURCEROOT" : "/Users/jvanbriesen/dominai_client"
+#        ; "INSIDE_DUNE" : "/Users/jvanbriesen/dominai_client/_build/default"
+#        ; "MANPATH" :
+#            "/Users/jvanbriesen/dominai_client/_build/install/default/bin"
+#        ; "OCAMLFIND_IGNORE_DUPS_IN" :
+#            "/Users/jvanbriesen/dominai_client/_build/install/default/lib"
+#        ; "OCAMLPATH" :
+#            "/Users/jvanbriesen/dominai_client/_build/install/default/lib"
+#        ; "OCAMLTOP_INCLUDE_PATH" :
+#            "/Users/jvanbriesen/dominai_client/_build/install/default/lib/toplevel"
+#        ; "OCAML_COLOR" : "always"
+#        ; "OPAMCOLOR" : "always"
+#        }
+#  ; findlib_paths = [ External "/Users/jvanbriesen/.opam/default/lib" ]
+#  ; arch_sixtyfour = true
+#  ; natdynlink_supported = true
+#  ; supports_shared_libraries = true
+#  ; ocaml_config =
+#      { version = "4.11.0"
+#      ; standard_library_default =
+#          "/Users/jvanbriesen/.opam/default/lib/ocaml"
+#      ; standard_library = "/Users/jvanbriesen/.opam/default/lib/ocaml"
+#      ; standard_runtime = "the_standard_runtime_variable_was_deleted"
+#      ; ccomp_type = "cc"
+#      ; c_compiler = "cc"
+#      ; ocamlc_cflags = [ "-O2"; "-fno-strict-aliasing"; "-fwrapv" ]
+#      ; ocamlc_cppflags = [ "-D_FILE_OFFSET_BITS=64"; "-D_REENTRANT" ]
+#      ; ocamlopt_cflags = [ "-O2"; "-fno-strict-aliasing"; "-fwrapv" ]
+#      ; ocamlopt_cppflags = [ "-D_FILE_OFFSET_BITS=64"; "-D_REENTRANT" ]
+#      ; bytecomp_c_compiler =
+#          [ "cc"
+#          ; "-O2"
+#          ; "-fno-strict-aliasing"
+#          ; "-fwrapv"
+#          ; "-D_FILE_OFFSET_BITS=64"
+#          ; "-D_REENTRANT"
+#          ]
+#      ; bytecomp_c_libraries = [ "-lm"; "-lpthread" ]
+#      ; native_c_compiler =
+#          [ "cc"
+#          ; "-O2"
+#          ; "-fno-strict-aliasing"
+#          ; "-fwrapv"
+#          ; "-D_FILE_OFFSET_BITS=64"
+#          ; "-D_REENTRANT"
+#          ]
+#      ; native_c_libraries = [ "-lm" ]
+#      ; native_pack_linker = [ "ld"; "-r"; "-o" ]
+#      ; cc_profile = []
+#      ; architecture = "amd64"
+#      ; model = "default"
+#      ; int_size = 63
+#      ; word_size = 64
+#      ; system = "macosx"
+#      ; asm = [ "clang"; "-arch"; "x86_64"; "-Wno-trigraphs"; "-c" ]
+#      ; asm_cfi_supported = true
+#      ; with_frame_pointers = false
+#      ; ext_exe = ""
+#      ; ext_obj = ".o"
+#      ; ext_asm = ".s"
+#      ; ext_lib = ".a"
+#      ; ext_dll = ".so"
+#      ; os_type = "Unix"
+#      ; default_executable_name = "a.out"
+#      ; systhread_supported = true
+#      ; host = "x86_64-apple-darwin19.5.0"
+#      ; target = "x86_64-apple-darwin19.5.0"
+#      ; profiling = false
+#      ; flambda = false
+#      ; spacetime = false
+#      ; safe_string = true
+#      ; exec_magic_number = "Caml1999X028"
+#      ; cmi_magic_number = "Caml1999I028"
+#      ; cmo_magic_number = "Caml1999O028"
+#      ; cma_magic_number = "Caml1999A028"
+#      ; cmx_magic_number = "Caml1999Y028"
+#      ; cmxa_magic_number = "Caml1999Z028"
+#      ; ast_impl_magic_number = "Caml1999M028"
+#      ; ast_intf_magic_number = "Caml1999N028"
+#      ; cmxs_magic_number = "Caml1999D028"
+#      ; cmt_magic_number = "Caml1999T028"
+#      ; natdynlink_supported = true
+#      ; supports_shared_libraries = true
+#      ; windows_unicode = false
+#      }
+#  }
+$ (cd _build/default && .ppx/99e8fcefc10fa703da2a86c9fdf57b11/ppx.exe --cookie 'library-name="dominai_client"' -o lib/conn.pp.ml --impl lib/conn.ml -corrected-suffix .ppx-corrected -diff-cmd - -dump-ast)
+$ (cd _build/default && /Users/jvanbriesen/.opam/default/bin/ocamldep.opt -modules -impl lib/conn.pp.ml) > _build/default/lib/.dominai_client.objs/conn.pp.ml.d
+$ (cd _build/default && /Users/jvanbriesen/.opam/default/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -bin-annot -I lib/.dominai_client.objs/byte -I /Users/jvanbriesen/.opam/default/lib/angstrom -I /Users/jvanbriesen/.opam/default/lib/astring -I /Users/jvanbriesen/.opam/default/lib/base -I /Users/jvanbriesen/.opam/default/lib/base/base_internalhash_types -I /Users/jvanbriesen/.opam/default/lib/base/caml -I /Users/jvanbriesen/.opam/default/lib/base/md5 -I /Users/jvanbriesen/.opam/default/lib/base/shadow_stdlib -I /Users/jvanbriesen/.opam/default/lib/base64 -I /Users/jvanbriesen/.opam/default/lib/base_bigstring -I /Users/jvanbriesen/.opam/default/lib/base_quickcheck -I /Users/jvanbriesen/.opam/default/lib/bigstringaf -I /Users/jvanbriesen/.opam/default/lib/bin_prot -I /Users/jvanbriesen/.opam/default/lib/bin_prot/shape -I /Users/jvanbriesen/.opam/default/lib/cohttp -I /Users/jvanbriesen/.opam/default/lib/cohttp-lwt -I /Users/jvanbriesen/.opam/default/lib/cohttp-lwt-unix -I /Users/jvanbriesen/.opam/default/lib/conduit -I /Users/jvanbriesen/.opam/default/lib/conduit-lwt -I /Users/jvanbriesen/.opam/default/lib/conduit-lwt-unix -I /Users/jvanbriesen/.opam/default/lib/core -I /Users/jvanbriesen/.opam/default/lib/core/error_checking_mutex -I /Users/jvanbriesen/.opam/default/lib/core_kernel -I /Users/jvanbriesen/.opam/default/lib/core_kernel/base_for_tests -I /Users/jvanbriesen/.opam/default/lib/core_kernel/caml_unix -I /Users/jvanbriesen/.opam/default/lib/core_kernel/flags -I /Users/jvanbriesen/.opam/default/lib/core_kernel/version_util -I /Users/jvanbriesen/.opam/default/lib/core_unix -I /Users/jvanbriesen/.opam/default/lib/domain-name -I /Users/jvanbriesen/.opam/default/lib/fieldslib -I /Users/jvanbriesen/.opam/default/lib/fmt -I /Users/jvanbriesen/.opam/default/lib/ipaddr -I /Users/jvanbriesen/.opam/default/lib/ipaddr-sexp -I /Users/jvanbriesen/.opam/default/lib/ipaddr/unix -I /Users/jvanbriesen/.opam/default/lib/jane-street-headers -I /Users/jvanbriesen/.opam/default/lib/jsonrpc -I /Users/jvanbriesen/.opam/default/lib/logs -I /Users/jvanbriesen/.opam/default/lib/lwt -I /Users/jvanbriesen/.opam/default/lib/lwt/unix -I /Users/jvanbriesen/.opam/default/lib/lwt_log -I /Users/jvanbriesen/.opam/default/lib/lwt_log/core -I /Users/jvanbriesen/.opam/default/lib/macaddr -I /Users/jvanbriesen/.opam/default/lib/magic-mime -I /Users/jvanbriesen/.opam/default/lib/ocaml/threads -I /Users/jvanbriesen/.opam/default/lib/ocplib-endian -I /Users/jvanbriesen/.opam/default/lib/ocplib-endian/bigstring -I /Users/jvanbriesen/.opam/default/lib/parsexp -I /Users/jvanbriesen/.opam/default/lib/ppx_assert/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_bench/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_compare/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_deriving/runtime -I /Users/jvanbriesen/.opam/default/lib/ppx_enumerate/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/collector -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/common -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/config -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/config_types -I /Users/jvanbriesen/.opam/default/lib/ppx_hash/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_here/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_inline_test/config -I /Users/jvanbriesen/.opam/default/lib/ppx_inline_test/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_module_timer/runtime -I /Users/jvanbriesen/.opam/default/lib/ppx_sexp_conv/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_yojson_conv_lib -I /Users/jvanbriesen/.opam/default/lib/re -I /Users/jvanbriesen/.opam/default/lib/result -I /Users/jvanbriesen/.opam/default/lib/seq -I /Users/jvanbriesen/.opam/default/lib/sexplib -I /Users/jvanbriesen/.opam/default/lib/sexplib/unix -I /Users/jvanbriesen/.opam/default/lib/sexplib0 -I /Users/jvanbriesen/.opam/default/lib/spawn -I /Users/jvanbriesen/.opam/default/lib/splittable_random -I /Users/jvanbriesen/.opam/default/lib/stdio -I /Users/jvanbriesen/.opam/default/lib/stringext -I /Users/jvanbriesen/.opam/default/lib/time_now -I /Users/jvanbriesen/.opam/default/lib/timezone -I /Users/jvanbriesen/.opam/default/lib/typerep -I /Users/jvanbriesen/.opam/default/lib/uri -I /Users/jvanbriesen/.opam/default/lib/uri-sexp -I /Users/jvanbriesen/.opam/default/lib/uri/services -I /Users/jvanbriesen/.opam/default/lib/variantslib -I /Users/jvanbriesen/.opam/default/lib/websocket -I /Users/jvanbriesen/.opam/default/lib/websocket-lwt-unix -I /Users/jvanbriesen/.opam/default/lib/yojson -intf-suffix .ml -no-alias-deps -opaque -open Dominai_client__ -o lib/.dominai_client.objs/byte/dominai_client__Conn.cmo -c -impl lib/conn.pp.ml)
+$ (cd _build/default && /Users/jvanbriesen/.opam/default/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -a -o lib/dominai_client.cma lib/.dominai_client.objs/byte/dominai_client__.cmo lib/.dominai_client.objs/byte/dominai_client__Card.cmo lib/.dominai_client.objs/byte/dominai_client__Supply.cmo lib/.dominai_client.objs/byte/dominai_client__Start_game.cmo lib/.dominai_client.objs/byte/dominai_client__Request_card.cmo lib/.dominai_client.objs/byte/dominai_client__Play.cmo lib/.dominai_client.objs/byte/dominai_client__Game_state.cmo lib/.dominai_client.objs/byte/dominai_client__End_turn_response.cmo lib/.dominai_client.objs/byte/dominai_client__Conn.cmo lib/.dominai_client.objs/byte/dominai_client.cmo)
+$ (cd _build/default && /Users/jvanbriesen/.opam/default/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -I lib/.dominai_client.objs/byte -I lib/.dominai_client.objs/native -I /Users/jvanbriesen/.opam/default/lib/angstrom -I /Users/jvanbriesen/.opam/default/lib/astring -I /Users/jvanbriesen/.opam/default/lib/base -I /Users/jvanbriesen/.opam/default/lib/base/base_internalhash_types -I /Users/jvanbriesen/.opam/default/lib/base/caml -I /Users/jvanbriesen/.opam/default/lib/base/md5 -I /Users/jvanbriesen/.opam/default/lib/base/shadow_stdlib -I /Users/jvanbriesen/.opam/default/lib/base64 -I /Users/jvanbriesen/.opam/default/lib/base_bigstring -I /Users/jvanbriesen/.opam/default/lib/base_quickcheck -I /Users/jvanbriesen/.opam/default/lib/bigstringaf -I /Users/jvanbriesen/.opam/default/lib/bin_prot -I /Users/jvanbriesen/.opam/default/lib/bin_prot/shape -I /Users/jvanbriesen/.opam/default/lib/cohttp -I /Users/jvanbriesen/.opam/default/lib/cohttp-lwt -I /Users/jvanbriesen/.opam/default/lib/cohttp-lwt-unix -I /Users/jvanbriesen/.opam/default/lib/conduit -I /Users/jvanbriesen/.opam/default/lib/conduit-lwt -I /Users/jvanbriesen/.opam/default/lib/conduit-lwt-unix -I /Users/jvanbriesen/.opam/default/lib/core -I /Users/jvanbriesen/.opam/default/lib/core/error_checking_mutex -I /Users/jvanbriesen/.opam/default/lib/core_kernel -I /Users/jvanbriesen/.opam/default/lib/core_kernel/base_for_tests -I /Users/jvanbriesen/.opam/default/lib/core_kernel/caml_unix -I /Users/jvanbriesen/.opam/default/lib/core_kernel/flags -I /Users/jvanbriesen/.opam/default/lib/core_kernel/version_util -I /Users/jvanbriesen/.opam/default/lib/core_unix -I /Users/jvanbriesen/.opam/default/lib/domain-name -I /Users/jvanbriesen/.opam/default/lib/fieldslib -I /Users/jvanbriesen/.opam/default/lib/fmt -I /Users/jvanbriesen/.opam/default/lib/ipaddr -I /Users/jvanbriesen/.opam/default/lib/ipaddr-sexp -I /Users/jvanbriesen/.opam/default/lib/ipaddr/unix -I /Users/jvanbriesen/.opam/default/lib/jane-street-headers -I /Users/jvanbriesen/.opam/default/lib/jsonrpc -I /Users/jvanbriesen/.opam/default/lib/logs -I /Users/jvanbriesen/.opam/default/lib/lwt -I /Users/jvanbriesen/.opam/default/lib/lwt/unix -I /Users/jvanbriesen/.opam/default/lib/lwt_log -I /Users/jvanbriesen/.opam/default/lib/lwt_log/core -I /Users/jvanbriesen/.opam/default/lib/macaddr -I /Users/jvanbriesen/.opam/default/lib/magic-mime -I /Users/jvanbriesen/.opam/default/lib/ocaml/threads -I /Users/jvanbriesen/.opam/default/lib/ocplib-endian -I /Users/jvanbriesen/.opam/default/lib/ocplib-endian/bigstring -I /Users/jvanbriesen/.opam/default/lib/parsexp -I /Users/jvanbriesen/.opam/default/lib/ppx_assert/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_bench/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_compare/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_deriving/runtime -I /Users/jvanbriesen/.opam/default/lib/ppx_enumerate/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/collector -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/common -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/config -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/config_types -I /Users/jvanbriesen/.opam/default/lib/ppx_hash/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_here/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_inline_test/config -I /Users/jvanbriesen/.opam/default/lib/ppx_inline_test/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_module_timer/runtime -I /Users/jvanbriesen/.opam/default/lib/ppx_sexp_conv/runtime-lib -I /Users/jvanbriesen/.opam/default/lib/ppx_yojson_conv_lib -I /Users/jvanbriesen/.opam/default/lib/re -I /Users/jvanbriesen/.opam/default/lib/result -I /Users/jvanbriesen/.opam/default/lib/seq -I /Users/jvanbriesen/.opam/default/lib/sexplib -I /Users/jvanbriesen/.opam/default/lib/sexplib/unix -I /Users/jvanbriesen/.opam/default/lib/sexplib0 -I /Users/jvanbriesen/.opam/default/lib/spawn -I /Users/jvanbriesen/.opam/default/lib/splittable_random -I /Users/jvanbriesen/.opam/default/lib/stdio -I /Users/jvanbriesen/.opam/default/lib/stringext -I /Users/jvanbriesen/.opam/default/lib/time_now -I /Users/jvanbriesen/.opam/default/lib/timezone -I /Users/jvanbriesen/.opam/default/lib/typerep -I /Users/jvanbriesen/.opam/default/lib/uri -I /Users/jvanbriesen/.opam/default/lib/uri-sexp -I /Users/jvanbriesen/.opam/default/lib/uri/services -I /Users/jvanbriesen/.opam/default/lib/variantslib -I /Users/jvanbriesen/.opam/default/lib/websocket -I /Users/jvanbriesen/.opam/default/lib/websocket-lwt-unix -I /Users/jvanbriesen/.opam/default/lib/yojson -intf-suffix .ml -no-alias-deps -opaque -open Dominai_client__ -o lib/.dominai_client.objs/native/dominai_client__Conn.cmx -c -impl lib/conn.pp.ml)
+$ (cd _build/default && /Users/jvanbriesen/.opam/default/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -a -o lib/dominai_client.cmxa lib/.dominai_client.objs/native/dominai_client__.cmx lib/.dominai_client.objs/native/dominai_client__Card.cmx lib/.dominai_client.objs/native/dominai_client__Supply.cmx lib/.dominai_client.objs/native/dominai_client__Start_game.cmx lib/.dominai_client.objs/native/dominai_client__Request_card.cmx lib/.dominai_client.objs/native/dominai_client__Play.cmx lib/.dominai_client.objs/native/dominai_client__Game_state.cmx lib/.dominai_client.objs/native/dominai_client__End_turn_response.cmx lib/.dominai_client.objs/native/dominai_client__Conn.cmx lib/.dominai_client.objs/native/dominai_client.cmx)
+$ (cd _build/default && /Users/jvanbriesen/.opam/default/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -shared -linkall -I lib -o lib/dominai_client.cmxs lib/dominai_client.cmxa)
+$ (cd _build/default && /Users/jvanbriesen/.opam/default/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -g -o bin/main.exe /Users/jvanbriesen/.opam/default/lib/base/base_internalhash_types/base_internalhash_types.cmxa -I /Users/jvanbriesen/.opam/default/lib/base/base_internalhash_types /Users/jvanbriesen/.opam/default/lib/base/caml/caml.cmxa /Users/jvanbriesen/.opam/default/lib/sexplib0/sexplib0.cmxa /Users/jvanbriesen/.opam/default/lib/base/shadow_stdlib/shadow_stdlib.cmxa /Users/jvanbriesen/.opam/default/lib/base/base.cmxa -I /Users/jvanbriesen/.opam/default/lib/base /Users/jvanbriesen/.opam/default/lib/ppx_sexp_conv/runtime-lib/ppx_sexp_conv_lib.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_here/runtime-lib/ppx_here_lib.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_inline_test/config/inline_test_config.cmxa /Users/jvanbriesen/.opam/default/lib/jane-street-headers/jane_street_headers.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_compare/runtime-lib/ppx_compare_lib.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_enumerate/runtime-lib/ppx_enumerate_lib.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_hash/runtime-lib/ppx_hash_lib.cmxa /Users/jvanbriesen/.opam/default/lib/time_now/time_now.cmxa -I /Users/jvanbriesen/.opam/default/lib/time_now /Users/jvanbriesen/.opam/default/lib/ppx_inline_test/runtime-lib/ppx_inline_test_lib.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_bench/runtime-lib/ppx_bench_lib.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_assert/runtime-lib/ppx_assert_lib.cmxa /Users/jvanbriesen/.opam/default/lib/splittable_random/splittable_random.cmxa /Users/jvanbriesen/.opam/default/lib/fieldslib/fieldslib.cmxa /Users/jvanbriesen/.opam/default/lib/base_quickcheck/base_quickcheck.cmxa /Users/jvanbriesen/.opam/default/lib/base/md5/md5_lib.cmxa /Users/jvanbriesen/.opam/default/lib/variantslib/variantslib.cmxa /Users/jvanbriesen/.opam/default/lib/bin_prot/shape/bin_shape_lib.cmxa /Users/jvanbriesen/.opam/default/lib/bin_prot/bin_prot.cmxa -I /Users/jvanbriesen/.opam/default/lib/bin_prot /Users/jvanbriesen/.opam/default/lib/stdio/stdio.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_module_timer/runtime/ppx_module_timer_runtime.cmxa /Users/jvanbriesen/.opam/default/lib/typerep/typerep_lib.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_expect/common/expect_test_common.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_expect/config_types/expect_test_config_types.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_expect/collector/expect_test_collector.cmxa -I /Users/jvanbriesen/.opam/default/lib/ppx_expect/collector /Users/jvanbriesen/.opam/default/lib/ppx_expect/config/expect_test_config.cmxa /Users/jvanbriesen/.opam/default/lib/base_bigstring/base_bigstring.cmxa -I /Users/jvanbriesen/.opam/default/lib/base_bigstring /Users/jvanbriesen/.opam/default/lib/core_kernel/base_for_tests/base_for_tests.cmxa /Users/jvanbriesen/.opam/default/lib/ocaml/unix.cmxa -I /Users/jvanbriesen/.opam/default/lib/ocaml /Users/jvanbriesen/.opam/default/lib/ocaml/bigarray.cmxa -I /Users/jvanbriesen/.opam/default/lib/ocaml /Users/jvanbriesen/.opam/default/lib/parsexp/parsexp.cmxa /Users/jvanbriesen/.opam/default/lib/sexplib/sexplib.cmxa /Users/jvanbriesen/.opam/default/lib/core_kernel/core_kernel.cmxa -I /Users/jvanbriesen/.opam/default/lib/core_kernel /Users/jvanbriesen/.opam/default/lib/ocaml/threads/threads.cmxa -I /Users/jvanbriesen/.opam/default/lib/ocaml /Users/jvanbriesen/.opam/default/lib/core/error_checking_mutex/error_checking_mutex.cmxa -I /Users/jvanbriesen/.opam/default/lib/core/error_checking_mutex /Users/jvanbriesen/.opam/default/lib/core_kernel/caml_unix/caml_unix.cmxa /Users/jvanbriesen/.opam/default/lib/core_kernel/flags/flags.cmxa /Users/jvanbriesen/.opam/default/lib/core_kernel/version_util/version_util.cmxa -I /Users/jvanbriesen/.opam/default/lib/core_kernel/version_util /Users/jvanbriesen/.opam/default/lib/sexplib/unix/sexplib_unix.cmxa /Users/jvanbriesen/.opam/default/lib/spawn/spawn.cmxa -I /Users/jvanbriesen/.opam/default/lib/spawn /Users/jvanbriesen/.opam/default/lib/timezone/timezone.cmxa /Users/jvanbriesen/.opam/default/lib/core/core.cmxa -I /Users/jvanbriesen/.opam/default/lib/core /Users/jvanbriesen/.opam/default/lib/core_unix/core_unix.cmxa /Users/jvanbriesen/.opam/default/lib/jsonrpc/jsonrpc.cmxa /Users/jvanbriesen/.opam/default/lib/yojson/yojson.cmxa -I /Users/jvanbriesen/.opam/default/lib/ocaml /Users/jvanbriesen/.opam/default/lib/lwt/lwt.cmxa /Users/jvanbriesen/.opam/default/lib/ocplib-endian/ocplib_endian.cmxa /Users/jvanbriesen/.opam/default/lib/ocplib-endian/bigstring/ocplib_endian_bigstring.cmxa /Users/jvanbriesen/.opam/default/lib/lwt/unix/lwt_unix.cmxa -I /Users/jvanbriesen/.opam/default/lib/lwt/unix /Users/jvanbriesen/.opam/default/lib/lwt_log/core/lwt_log_core.cmxa /Users/jvanbriesen/.opam/default/lib/lwt_log/lwt_log.cmxa /Users/jvanbriesen/.opam/default/lib/fmt/fmt.cmxa /Users/jvanbriesen/.opam/default/lib/logs/logs.cmxa /Users/jvanbriesen/.opam/default/lib/logs/logs_lwt.cmxa /Users/jvanbriesen/.opam/default/lib/macaddr/macaddr.cmxa /Users/jvanbriesen/.opam/default/lib/domain-name/domain_name.cmxa /Users/jvanbriesen/.opam/default/lib/ipaddr/ipaddr.cmxa /Users/jvanbriesen/.opam/default/lib/ipaddr-sexp/ipaddr_sexp.cmxa /Users/jvanbriesen/.opam/default/lib/stringext/stringext.cmxa /Users/jvanbriesen/.opam/default/lib/bigstringaf/bigstringaf.cmxa -I /Users/jvanbriesen/.opam/default/lib/bigstringaf /Users/jvanbriesen/.opam/default/lib/angstrom/angstrom.cmxa /Users/jvanbriesen/.opam/default/lib/uri/uri.cmxa /Users/jvanbriesen/.opam/default/lib/astring/astring.cmxa /Users/jvanbriesen/.opam/default/lib/conduit/conduit.cmxa /Users/jvanbriesen/.opam/default/lib/conduit-lwt/conduit_lwt.cmxa /Users/jvanbriesen/.opam/default/lib/magic-mime/magic_mime_library.cmxa /Users/jvanbriesen/.opam/default/lib/uri/services/uri_services.cmxa /Users/jvanbriesen/.opam/default/lib/ipaddr/unix/ipaddr_unix.cmxa /Users/jvanbriesen/.opam/default/lib/conduit-lwt-unix/conduit_lwt_unix.cmxa /Users/jvanbriesen/.opam/default/lib/re/re.cmxa /Users/jvanbriesen/.opam/default/lib/uri-sexp/uri_sexp.cmxa /Users/jvanbriesen/.opam/default/lib/base64/base64.cmxa /Users/jvanbriesen/.opam/default/lib/cohttp/cohttp.cmxa /Users/jvanbriesen/.opam/default/lib/cohttp-lwt/cohttp_lwt.cmxa /Users/jvanbriesen/.opam/default/lib/logs/logs_fmt.cmxa /Users/jvanbriesen/.opam/default/lib/cohttp-lwt-unix/cohttp_lwt_unix.cmxa /Users/jvanbriesen/.opam/default/lib/websocket/websocket.cmxa /Users/jvanbriesen/.opam/default/lib/websocket-lwt-unix/websocket_lwt_unix.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_yojson_conv_lib/ppx_yojson_conv_lib.cmxa /Users/jvanbriesen/.opam/default/lib/result/result.cmxa /Users/jvanbriesen/.opam/default/lib/ppx_deriving/runtime/ppx_deriving_runtime.cmxa lib/dominai_client.cmxa /Users/jvanbriesen/.opam/default/lib/core_unix/command_unix/command_unix.cmxa bin/.main.eobjs/native/dune__exe__Main.cmx)

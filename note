@@ -1,0 +1,3 @@
+- "Play" should be "Buy" under the column
+- Duplicate name gives a nondescriptive error
+- 
