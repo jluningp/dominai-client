@@ -1,1 +1,1 @@
-dune exec bin/main.exe -- -url "$1"
+dune exec bin/main.exe -- -log-traffic -url "$1"

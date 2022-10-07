@@ -3,6 +3,7 @@ open Core
 type t = {
   conn : Websocket_lwt_unix.conn;
   open_requests : Jsonrpc.Response.t Lwt.u String.Table.t;
+  log_traffic : bool;
 }
 
 let read (t : t) : Jsonrpc.Packet.t Lwt.t =
@@ -21,11 +22,12 @@ let read (t : t) : Jsonrpc.Packet.t Lwt.t =
 
 let respond (t : t) (packet : Jsonrpc.Response.t) : unit Lwt.t =
   let content = Yojson.Safe.to_string (Jsonrpc.Response.yojson_of_t packet) in
-  Ocolor_format.printf "@{<blue> Sending response: %s @}\n" content;
+  if t.log_traffic then
+    Ocolor_format.printf "@{<blue> Sending response: %s @}\n" content;
   let frame = Websocket.Frame.create ~content () in
   Websocket_lwt_unix.write t.conn frame
 
-let create ~(url : string) ~on_notification ~on_request : t Lwt.t =
+let create ~(url : string) ~on_notification ~on_request ~log_traffic : t Lwt.t =
   let uri : Uri.t = Uri.of_string url in
   let%lwt (endp : Conduit.endp) =
     Resolver_lwt.resolve_uri ~uri Resolver_lwt_unix.system
@@ -36,12 +38,13 @@ let create ~(url : string) ~on_notification ~on_request : t Lwt.t =
   in
   let%lwt conn = Websocket_lwt_unix.connect client uri in
   let open_requests = String.Table.create () in
-  let t = { conn; open_requests } in
+  let t = { conn; open_requests; log_traffic } in
   let () =
     let rec loop () =
       let%lwt packet = read t in
-      Ocolor_format.printf "@{<blue> New message from server: %s @}\n"
-        (packet |> Jsonrpc.Packet.yojson_of_t |> Yojson.Safe.to_string);
+      if t.log_traffic then
+        Ocolor_format.printf "@{<blue> New message from server: %s @}\n"
+          (packet |> Jsonrpc.Packet.yojson_of_t |> Yojson.Safe.to_string);
       printf "%!";
       match packet with
       | Jsonrpc.Packet.Notification notification ->
@@ -82,8 +85,9 @@ let dispatch (t : t) ~(with_request : Jsonrpc.Id.t -> Jsonrpc.Request.t) :
   let promise, resolver = Lwt.wait () in
   let id = create_id () in
   let packet = with_request (`String id) in
-  Ocolor_format.printf "@{<blue> Sending request: %s @}\n"
-    (packet |> Jsonrpc.Request.yojson_of_t |> Yojson.Safe.to_string);
+  if t.log_traffic then
+    Ocolor_format.printf "@{<blue> Sending request: %s @}\n"
+      (packet |> Jsonrpc.Request.yojson_of_t |> Yojson.Safe.to_string);
   printf "%!";
   Hashtbl.set t.open_requests ~key:id ~data:resolver;
   let content = Yojson.Safe.to_string (Jsonrpc.Request.yojson_of_t packet) in
