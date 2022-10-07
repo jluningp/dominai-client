@@ -1,39 +1,26 @@
 open Core
 open Import
 
-type t = { mutable cards : Card.t list; militia : bool }
+type t = { mutable cards : Card.t list }
 
-let create ~always_militia = { cards = []; militia = always_militia }
+let create () = { cards = [] }
+
+(* Card tracking *)
 let add_card t card = t.cards <- card :: t.cards
 let trash_card t card = t.cards <- List.diff t.cards [ card ]
-let action_card = Card.Library
-let action_play _ = Play.Library { skip_action_card = (fun ~hand:_ _ -> false) }
 
-let next_money ~(game_state : Game_state.t) =
+(* Only play money cards, since we have no actions. *)
+let next_play (_ : t) ~(game_state : Game_state.t) =
   List.find_map game_state.hand ~f:(function
     | Copper -> Some Play.Copper
     | Gold -> Some Gold
     | Silver -> Some Silver
     | _ -> None)
 
-let next_action ~(game_state : Game_state.t) =
-  if game_state.actions <= 0 then None
-  else
-    List.find_map game_state.hand ~f:(fun card ->
-        if Card.equal card action_card then Some (action_play game_state.hand)
-        else None)
-
-let next_play (_ : t) ~(game_state : Game_state.t) =
-  match next_action ~game_state with
-  | Some action -> Some action
-  | None -> next_money ~game_state
-
 let can_buy card ~(game_state : Game_state.t) =
   match Map.find game_state.supply card with
   | None -> false
   | Some count -> count > 0
-
-let action_cards t = List.count t.cards ~f:(Card.equal action_card)
 
 let next_buy t ~(game_state : Game_state.t) =
   let buy =
@@ -43,8 +30,6 @@ let next_buy t ~(game_state : Game_state.t) =
       match game_state.treasure with
       | n when n >= 8 && c Province -> Some Card.Province
       | n when n >= 6 && c Gold -> Some Gold
-      | n when n >= 5 && c action_card && t.militia && action_cards t < 10 ->
-          Some action_card
       | n when n >= 3 && c Silver -> Some Silver
       | _ -> None
   in

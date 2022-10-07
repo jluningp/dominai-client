@@ -1,12 +1,9 @@
 (library
- (name dominai_client_lib)
+ (name dominai_ai)
  (libraries
   core
   core_unix
-  jsonrpc
-  ocolor
-  yojson
-  websocket-lwt-unix)
+  dominai_client_lib)
  (preprocess	
   (pps
   lwt_ppx

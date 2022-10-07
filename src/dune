@@ -1,8 +1,10 @@
 (library
- (name dominai_client_lib)
+ (name dominai_client)
  (libraries
   core
   core_unix
+  dominai_ai
+  dominai_client_lib
   jsonrpc
   ocolor
   yojson

@@ -1,4 +1,5 @@
 open Core
+include Dominai_client_lib
 
 module List = struct
   include List
