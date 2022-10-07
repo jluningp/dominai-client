@@ -13,3 +13,8 @@ type t = {
   phase : string list;
 }
 [@@deriving yojson, sexp] [@@yojson.allow_extra_fields]
+
+module End_of_turn = struct
+  type t = { hand : Card.t list; discard : int; deck : int; supply : Supply.t }
+  [@@deriving yojson, sexp] [@@yojson.allow_extra_fields]
+end

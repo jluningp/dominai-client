@@ -4,6 +4,7 @@
   core
   core_unix
   jsonrpc
+  ocolor
   yojson
   websocket-lwt-unix)
  (preprocess	

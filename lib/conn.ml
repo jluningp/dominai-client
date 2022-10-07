@@ -7,12 +7,21 @@ type t = {
 
 let read (t : t) : Jsonrpc.Packet.t Lwt.t =
   let%lwt (frame : Websocket.Frame.t) = Websocket_lwt_unix.read t.conn in
-  Lwt.return
-    (frame.Websocket.Frame.content |> Yojson.Safe.from_string
-   |> Jsonrpc.Packet.t_of_yojson)
+  let packet =
+    try
+      frame.Websocket.Frame.content |> Yojson.Safe.from_string
+      |> Jsonrpc.Packet.t_of_yojson
+    with exn ->
+      printf "Internal Parse Error: %s\n" (Exn.to_string exn);
+      printf "Original Message: %s\n" frame.Websocket.Frame.content;
+      Jsonrpc.Packet.Notification
+        (Jsonrpc.Notification.create ~method_:"InternalParseError" ())
+  in
+  Lwt.return packet
 
 let respond (t : t) (packet : Jsonrpc.Response.t) : unit Lwt.t =
   let content = Yojson.Safe.to_string (Jsonrpc.Response.yojson_of_t packet) in
+  Ocolor_format.printf "@{<blue> Sending response: %s @}\n" content;
   let frame = Websocket.Frame.create ~content () in
   Websocket_lwt_unix.write t.conn frame
 
@@ -30,7 +39,11 @@ let create ~(url : string) ~on_notification ~on_request : t Lwt.t =
   let t = { conn; open_requests } in
   let () =
     let rec loop () =
-      match%lwt read t with
+      let%lwt packet = read t in
+      Ocolor_format.printf "@{<blue> New message from server: %s @}\n"
+        (packet |> Jsonrpc.Packet.yojson_of_t |> Yojson.Safe.to_string);
+      printf "%!";
+      match packet with
       | Jsonrpc.Packet.Notification notification ->
           on_notification notification;
           loop ()
@@ -47,15 +60,16 @@ let create ~(url : string) ~on_notification ~on_request : t Lwt.t =
             (response |> Jsonrpc.Response.yojson_of_t |> Yojson.Safe.to_string);
           loop ()
       | Request request ->
-          let response = on_request request in
-          let%lwt () = respond t response in
+          Lwt.async (fun () ->
+              let%lwt response = on_request request in
+              respond t response);
           loop ()
       | (Batch_response _ | Batch_call _) as malformed ->
           Printf.eprintf "Unsupported Batch from server: %s\n"
             (malformed |> Jsonrpc.Packet.yojson_of_t |> Yojson.Safe.to_string);
           loop ()
     in
-    ignore (loop ())
+    Lwt.async loop
   in
   Lwt.return t
 
@@ -68,6 +82,9 @@ let dispatch (t : t) ~(with_request : Jsonrpc.Id.t -> Jsonrpc.Request.t) :
   let promise, resolver = Lwt.wait () in
   let id = create_id () in
   let packet = with_request (`String id) in
+  Ocolor_format.printf "@{<blue> Sending request: %s @}\n"
+    (packet |> Jsonrpc.Request.yojson_of_t |> Yojson.Safe.to_string);
+  printf "%!";
   Hashtbl.set t.open_requests ~key:id ~data:resolver;
   let content = Yojson.Safe.to_string (Jsonrpc.Request.yojson_of_t packet) in
   let frame = Websocket.Frame.create ~content () in
