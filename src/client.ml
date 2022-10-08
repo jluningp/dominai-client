@@ -298,8 +298,8 @@ module Make (Ai : Ai_intf.S) = struct
     let ok ?reaction ?data () =
       let body =
         match (reaction, data) with
-        | Some reaction, _ -> Attack.Response.Reaction.yojson_of_t { reaction }
-        | _, Some data -> Attack.Response.Attack_succeeded.yojson_of_t { data }
+        | Some reaction, _ -> Attack.Response.Block.yojson_of_t { reaction }
+        | _, Some data -> Attack.Response.yojson_of_t { data }
         | None, None -> yojson_of_unit ()
       in
       Jsonrpc.Response.ok id body

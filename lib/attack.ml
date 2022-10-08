@@ -74,12 +74,10 @@ module Response = struct
       | m -> Bureaucrat m
   end
 
-  module Reaction = struct
+  module Block = struct
     type t = { reaction : Card.t }
     [@@deriving yojson] [@@yojson.allow_extra_fields]
   end
 
-  module Attack_succeeded = struct
-    type t = { data : Data.t } [@@deriving yojson] [@@yojson.allow_extra_fields]
-  end
+  type t = { data : Data.t } [@@deriving yojson] [@@yojson.allow_extra_fields]
 end
