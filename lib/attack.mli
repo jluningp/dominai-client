@@ -4,7 +4,7 @@ module Request : sig
   end
 
   module Data : sig
-    type t = Bandit of Bandit.t
+    type t = Bandit of Bandit.t [@@deriving yojson]
   end
 
   type t = { card : Card.t; data : Data.t option } [@@deriving yojson]
@@ -12,7 +12,7 @@ end
 
 module Response : sig
   module Bureaucrat : sig
-    type t = Card of Card.t | Reveal
+    type t = Card of Card.t | Reveal [@@deriving yojson]
   end
 
   module Militia : sig
@@ -20,7 +20,7 @@ module Response : sig
   end
 
   module Bandit : sig
-    type t = Card.t option
+    type t = Card.t option [@@deriing yojson]
   end
 
   module Data : sig
@@ -31,9 +31,6 @@ module Response : sig
     [@@deriving yojson]
   end
 
-  module Block : sig
-    type t = { reaction : Card.t } [@@deriving yojson]
-  end
-
-  type t = { data : Data.t } [@@deriving yojson]
+  type t = { reaction : Card.t option; data : Data.t option }
+  [@@deriving yojson]
 end

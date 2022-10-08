@@ -1,47 +1,31 @@
 open Core
 
 module Cellar = struct
-  type t = { card : Card.t; data : Card.t list } [@@deriving yojson, sexp]
+  type t = Card.t list [@@deriving yojson, sexp]
 end
 
 module Chapel = struct
-  type t = { card : Card.t; data : Card.t list } [@@deriving yojson, sexp]
+  type t = Card.t list [@@deriving yojson, sexp]
 end
 
 module Workshop = struct
-  type t = { card : Card.t; data : Card.t } [@@deriving yojson, sexp]
+  type t = Card.t [@@deriving yojson, sexp]
 end
 
 module Moneylender = struct
-  type t = { card : Card.t; data : bool } [@@deriving yojson, sexp]
+  type t = bool [@@deriving yojson, sexp]
 end
 
 module Remodel = struct
-  module Data = struct
-    type t = { trash : Card.t; gain : Card.t } [@@deriving yojson, sexp]
-  end
-
-  type t = { card : Card.t; data : Data.t } [@@deriving yojson, sexp]
-end
-
-module Throne_room = struct
-  type 'play t = { card : Card.t; data : 'play } [@@deriving yojson, sexp]
+  type t = { trash : Card.t; gain : Card.t } [@@deriving yojson, sexp]
 end
 
 module Mine = struct
-  module Data = struct
-    type t = { trash : Card.t; gain : Card.t } [@@deriving yojson, sexp]
-  end
-
-  type t = { card : Card.t; data : Data.t } [@@deriving yojson, sexp]
+  type t = { trash : Card.t; gain : Card.t } [@@deriving yojson, sexp]
 end
 
 module Artisan = struct
-  module Data = struct
-    type t = { trash : Card.t; topdeck : Card.t } [@@deriving yojson, sexp]
-  end
-
-  type t = { card : Card.t; data : Data.t } [@@deriving yojson, sexp]
+  type t = { trash : Card.t; topdeck : Card.t } [@@deriving yojson, sexp]
 end
 
 module Harbinger = struct
@@ -83,6 +67,14 @@ module Sentry = struct
   [@@deriving sexp]
 end
 
+module No_data = struct
+  type t = { card : Card.t } [@@deriving yojson]
+end
+
+module With_data = struct
+  type 'data t = { card : Card.t; data : 'data } [@@deriving yojson]
+end
+
 type t =
   (* TREASURE CARDS *)
   | Copper
@@ -112,7 +104,7 @@ type t =
   | Harbinger of Harbinger.t
   | Vassal of t Vassal.t
   | Poacher of Poacher.t
-  | ThroneRoom of t Throne_room.t
+  | ThroneRoom of t
   | Library of Library.t
   | Sentry of Sentry.t
 [@@deriving sexp]
@@ -151,23 +143,39 @@ let rec yojson_of_with_data = function
   | ( Copper | Silver | Gold | Moat | Harbinger _ | Merchant | Vassal _
     | Village | Bureaucrat | Militia | Poacher _ | Smithy | Bandit | CouncilRoom
     | Festival | Laboratory | Library _ | Market | Sentry _ | Witch ) as card ->
-      Request_card.yojson_of_with_data
-        { Request_card.card = to_card card; data = "null" }
+      With_data.yojson_of_t yojson_of_unit { card = to_card card; data = () }
   | card -> yojson_of_t card
 
-and yojson_of_t = function
-  | ( Copper | Silver | Gold | Moat | Harbinger _ | Merchant | Vassal _
-    | Village | Bureaucrat | Militia | Poacher _ | Smithy | Bandit | CouncilRoom
-    | Festival | Laboratory | Library _ | Market | Sentry _ | Witch ) as card ->
-      Request_card.yojson_of_t { Request_card.card = to_card card }
-  | Cellar request -> Cellar.yojson_of_t request
-  | Chapel request -> Chapel.yojson_of_t request
-  | Workshop request -> Workshop.yojson_of_t request
-  | Moneylender request -> Moneylender.yojson_of_t request
-  | Remodel request -> Remodel.yojson_of_t request
-  | ThroneRoom request -> Throne_room.yojson_of_t yojson_of_with_data request
-  | Mine request -> Mine.yojson_of_t request
-  | Artisan request -> Artisan.yojson_of_t request
+and yojson_of_t card =
+  match card with
+  | Copper | Silver | Gold | Moat | Harbinger _ | Merchant | Vassal _ | Village
+  | Bureaucrat | Militia | Poacher _ | Smithy | Bandit | CouncilRoom | Festival
+  | Laboratory | Library _ | Market | Sentry _ | Witch ->
+      No_data.yojson_of_t { card = to_card card }
+  | Cellar request ->
+      With_data.yojson_of_t Cellar.yojson_of_t
+        { With_data.card = to_card card; data = request }
+  | Chapel request ->
+      With_data.yojson_of_t Chapel.yojson_of_t
+        { card = to_card card; data = request }
+  | Workshop request ->
+      With_data.yojson_of_t Workshop.yojson_of_t
+        { card = to_card card; data = request }
+  | Moneylender request ->
+      With_data.yojson_of_t Moneylender.yojson_of_t
+        { card = to_card card; data = request }
+  | Remodel request ->
+      With_data.yojson_of_t Remodel.yojson_of_t
+        { card = to_card card; data = request }
+  | ThroneRoom request ->
+      With_data.yojson_of_t yojson_of_with_data
+        { card = to_card card; data = request }
+  | Mine request ->
+      With_data.yojson_of_t Mine.yojson_of_t
+        { card = to_card card; data = request }
+  | Artisan request ->
+      With_data.yojson_of_t Artisan.yojson_of_t
+        { card = to_card card; data = request }
 
 let t_of_yojson _ = failwith "Cannot parse Play.t"
 

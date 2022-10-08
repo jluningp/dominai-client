@@ -2,124 +2,66 @@ open Core
 open Import
 
 module type S = sig
-  val main : url:string -> log_traffic:bool -> unit Lwt.t
+  val main : url:string -> log_traffic:bool -> games:int -> unit Lwt.t
 end
 
 module Make (Ai : Ai_intf.S) = struct
-  module Request = struct
-    module Util = struct
-      let parse_params params ~of_yojson =
-        params |> Jsonrpc.Structured.yojson_of_t |> of_yojson
-    end
-
-    type t = Play of Play.t | Buy of Request_card.t | End_turn
-
-    let method_ = function
-      | Play _ -> "Play"
-      | Buy _ -> "Buy"
-      | End_turn -> "EndTurn"
-
-    let params t =
-      let%map.Option yojson =
-        match t with
-        | Play data -> Some (Play.yojson_of_t data)
-        | Buy data -> Some (Request_card.yojson_of_t data)
-        | End_turn -> None
-      in
-      Jsonrpc.Structured.t_of_yojson yojson
-
-    let create t id =
-      Jsonrpc.Request.create ~id ~method_:(method_ t) ?params:(params t) ()
-
-    let dispatch t ~conn = Conn.dispatch conn ~with_request:(create t)
-  end
-
-  module Response = struct
-    let create_ok id = Jsonrpc.Response.ok id (yojson_of_unit ())
-  end
-
   type t = {
     conn : Conn.t;
     play_request : Jsonrpc.Request.t Lwt_mvar.t;
     play_response : Jsonrpc.Response.t Lwt_mvar.t;
     ai : Ai.t;
     mutable current_hand : Card.t list;
+    rematch : bool;
   }
 
-  let create ~conn ~ai =
+  let create ~conn ~ai ~rematch =
     {
       conn;
       ai;
       play_request = Lwt_mvar.create_empty ();
       play_response = Lwt_mvar.create_empty ();
       current_hand = [];
+      rematch;
     }
 
-  module Play_requests = struct
-    module Harbinger = struct
-      type t = { discard : Card.t list }
-      [@@deriving yojson] [@@yojson.allow_extra_fields]
-    end
+  let parse_params_exn params ~of_yojson =
+    match params with
+    | None -> failwith "Null params"
+    | Some params -> params |> Jsonrpc.Structured.yojson_of_t |> of_yojson
 
-    module Vassal = struct
-      type t = { card : Card.t }
-      [@@deriving yojson] [@@yojson.allow_extra_fields]
-    end
-
-    module Poacher = struct
-      type t = { hand : Card.t list; empty_supply_piles : int }
-      [@@deriving yojson] [@@yojson.allow_extra_fields]
-    end
-
-    module Library = struct
-      type t = { card : Card.t; hand : Card.t list }
-      [@@deriving yojson] [@@yojson.allow_extra_fields]
-    end
-
-    module Sentry = struct
-      type t = { hand : Card.t list; cards : Card.t list }
-      [@@deriving yojson] [@@yojson.allow_extra_fields]
-    end
-  end
+  let parse_result_exn (response : Jsonrpc.Response.t) ~of_yojson =
+    match response.result with
+    | Error err -> Jsonrpc.Response.Error.raise err
+    | Ok result -> of_yojson result
 
   let end_turn (t : t) : unit Lwt.t =
     print_endline "Ending turn...";
-    let%lwt response = Request.dispatch ~conn:t.conn End_turn in
-    match response.result with
-    | Error _ -> Lwt.return ()
-    | Ok data ->
-        let data = Game_state.End_of_turn.t_of_yojson data in
-        t.current_hand <- data.hand;
-        Lwt.return ()
+    let%lwt response =
+      Conn.dispatch t.conn ~with_request:(fun id ->
+          Jsonrpc.Request.create ~id ~method_:"EndTurn" ())
+    in
+    let data =
+      parse_result_exn response ~of_yojson:Protocol.EndTurn.Response.t_of_yojson
+    in
+    t.current_hand <- data.hand;
+    Lwt.return ()
 
   let on_harbinger t ~(game_state : Game_state.t) ~card_to_topdeck =
     if game_state.discard <= 0 then Lwt.return ()
     else
       let%lwt request = Lwt_mvar.take t.play_request in
       let { Jsonrpc.Request.params; id; _ } = request in
-      let params = Option.value_exn params in
-      let { Play_requests.Harbinger.discard } =
-        Request.Util.parse_params params
-          ~of_yojson:Play_requests.Harbinger.t_of_yojson
+      let { Protocol.Harbinger.Request.discard } =
+        parse_params_exn params
+          ~of_yojson:Protocol.Harbinger.Request.t_of_yojson
       in
       let topdeck = card_to_topdeck ~discard in
       let response =
         Jsonrpc.Response.ok id
-          (Request_card.yojson_of_t { Request_card.card = topdeck })
+          (Protocol.Harbinger.Response.yojson_of_t { card = topdeck })
       in
       Lwt_mvar.put t.play_response response
-
-  module Resp = struct
-    type t = { play : bool; data : Play.just_data } [@@deriving yojson]
-    type no_play = { play : bool; data : string } [@@deriving yojson]
-    type discard = { discard : Card.t list } [@@deriving yojson]
-    type skip = { skip : bool } [@@deriving yojson]
-
-    (* placement = "trash" | "discard" | "topdeck" *)
-    type sentry_card = { card : Card.t; placement : string } [@@deriving yojson]
-    type sentry = sentry_card list [@@deriving yojson]
-    type rematch = { rematch : bool } [@@deriving yojson]
-  end
 
   let take_request_after t ~seconds =
     let promise, resolver = Lwt.wait () in
@@ -136,16 +78,15 @@ module Make (Ai : Ai_intf.S) = struct
     else
       let%lwt request = Lwt_mvar.take t.play_request in
       let { Jsonrpc.Request.params; id; _ } = request in
-      let params = Option.value_exn params in
-      let { Play_requests.Poacher.hand; empty_supply_piles } =
-        Request.Util.parse_params params
-          ~of_yojson:Play_requests.Poacher.t_of_yojson
+      let { Protocol.Poacher.Request.hand; empty_supply_piles } =
+        parse_params_exn params ~of_yojson:Protocol.Poacher.Request.t_of_yojson
       in
       let discard =
         cards_to_discard ~number_to_discard:empty_supply_piles ~hand
       in
       let response =
-        Jsonrpc.Response.ok id (Resp.yojson_of_discard { discard })
+        Jsonrpc.Response.ok id
+          (Protocol.Poacher.Response.yojson_of_t { discard })
       in
       Lwt_mvar.put t.play_response response
 
@@ -153,27 +94,27 @@ module Make (Ai : Ai_intf.S) = struct
     let%lwt request = Lwt_mvar.take t.play_request in
     let { Jsonrpc.Request.id; _ } = request in
     let response =
-      Jsonrpc.Response.ok id (Play.yojson_of_just_data card_to_play)
+      Jsonrpc.Response.ok id
+        (Protocol.ThroneRoom.Response.yojson_of_t card_to_play)
     in
     Lwt_mvar.put t.play_response response
 
   let on_sentry t ~game_state:_ ~what_to_do =
     let%lwt request = Lwt_mvar.take t.play_request in
     let { Jsonrpc.Request.params; id; _ } = request in
-    let params = Option.value_exn params in
-    let { Play_requests.Sentry.hand; cards } =
-      Request.Util.parse_params params
-        ~of_yojson:Play_requests.Sentry.t_of_yojson
+    let { Protocol.Sentry.Request.hand; cards } =
+      parse_params_exn params ~of_yojson:Protocol.Sentry.Request.t_of_yojson
     in
     let to_do = what_to_do ~hand ~top_two_cards:cards in
     let response =
       Jsonrpc.Response.ok id
-        (Resp.yojson_of_sentry
+        (Protocol.Sentry.Response.yojson_of_t
            (List.map to_do ~f:(fun (card, to_do) ->
+                let open Protocol.Sentry.Response.Placement in
                 match to_do with
-                | `Trash -> { Resp.card; placement = "trash" }
-                | `Topdeck -> { Resp.card; placement = "topdeck" }
-                | `Discard -> { Resp.card; placement = "discard" })))
+                | `Trash -> { card; placement = "trash" }
+                | `Topdeck -> { card; placement = "topdeck" }
+                | `Discard -> { card; placement = "discard" })))
     in
     Lwt_mvar.put t.play_response response
 
@@ -183,15 +124,17 @@ module Make (Ai : Ai_intf.S) = struct
     | None -> Lwt.return ()
     | Some request ->
         let { Jsonrpc.Request.params; id; _ } = request in
-        let params = Option.value_exn params in
-        let { Play_requests.Library.hand; card } =
-          Request.Util.parse_params params
-            ~of_yojson:Play_requests.Library.t_of_yojson
+        let { Protocol.Library.Request.hand; card } =
+          parse_params_exn params
+            ~of_yojson:Protocol.Library.Request.t_of_yojson
         in
         let skip =
           if Card.is_treasure card then false else skip_action_card ~hand card
         in
-        let response = Jsonrpc.Response.ok id (Resp.yojson_of_skip { skip }) in
+        let response =
+          Jsonrpc.Response.ok id
+            (Protocol.Library.Response.yojson_of_t { skip })
+        in
         let%lwt () = Lwt_mvar.put t.play_response response in
         on_library t ~game_state ~skip_action_card
 
@@ -201,18 +144,15 @@ module Make (Ai : Ai_intf.S) = struct
     | None -> Lwt.return ()
     | Some request -> (
         let { Jsonrpc.Request.params; id; _ } = request in
-        let params = Option.value_exn params in
-        let { Play_requests.Vassal.card } =
-          Request.Util.parse_params params
-            ~of_yojson:Play_requests.Vassal.t_of_yojson
+        let { Protocol.Vassal.Request.card } =
+          parse_params_exn params ~of_yojson:Protocol.Vassal.Request.t_of_yojson
         in
         let play = play_card_from_topdeck game_state card in
         let response =
-          match play with
-          | None -> Resp.yojson_of_no_play { play = false; data = "null" }
-          | Some play -> Resp.yojson_of_t { play = true; data = play }
+          Jsonrpc.Response.ok id
+            (Protocol.Vassal.Response.yojson_of_t
+               { play = Option.is_some play; data = play })
         in
-        let response = Jsonrpc.Response.ok id response in
         let%lwt () = Lwt_mvar.put t.play_response response in
         match play with
         | None -> Lwt.return ()
@@ -225,29 +165,38 @@ module Make (Ai : Ai_intf.S) = struct
     | Vassal { play_card_from_topdeck } ->
         on_vassal t ~game_state ~play_card_from_topdeck
     | Poacher { cards_to_discard } -> on_poacher t ~game_state ~cards_to_discard
-    | ThroneRoom { data; _ } -> on_throne_room t ~game_state ~card_to_play:data
+    | ThroneRoom card_to_play -> on_throne_room t ~game_state ~card_to_play
     | Library { skip_action_card } -> on_library t ~game_state ~skip_action_card
     | Sentry { what_to_do } -> on_sentry t ~game_state ~what_to_do
     | _ -> Lwt.return ()
 
   let play_card (t : t) card ~(game_state : Game_state.t) : Game_state.t Lwt.t =
-    ignore game_state;
-    printf "Playing a card: %s\n" (Card.to_string (Play.to_card card));
-    let response = Request.dispatch ~conn:t.conn (Play card) in
+    printf "Playing a card: %s\n" (Sexp.to_string (Play.sexp_of_t card));
+    let response =
+      Conn.dispatch t.conn ~with_request:(fun id ->
+          Jsonrpc.Request.create ~id ~method_:"Play"
+            ~params:
+              (Jsonrpc.Structured.t_of_yojson
+                 (Protocol.Play.Request.yojson_of_t card))
+            ())
+    in
     let%lwt () = handle_card_specific_request t card ~game_state in
     let%lwt response = response in
-    match response.result with
-    | Error err -> Jsonrpc.Response.Error.raise err
-    | Ok game_state -> Game_state.t_of_yojson game_state |> Lwt.return
+    parse_result_exn response ~of_yojson:Protocol.Play.Response.t_of_yojson
+    |> Lwt.return
 
   let buy_card (t : t) card : Game_state.t Lwt.t =
     printf "Buying a card: %s\n" (Card.to_string card);
     let%lwt (response : Jsonrpc.Response.t) =
-      Request.dispatch ~conn:t.conn (Buy { card })
+      Conn.dispatch t.conn ~with_request:(fun id ->
+          Jsonrpc.Request.create ~id ~method_:"Buy"
+            ~params:
+              (Jsonrpc.Structured.t_of_yojson
+                 (Protocol.Buy.Request.yojson_of_t { card }))
+            ())
     in
-    match response.result with
-    | Error err -> Jsonrpc.Response.Error.raise err
-    | Ok game_state -> Game_state.t_of_yojson game_state |> Lwt.return
+    parse_result_exn response ~of_yojson:Protocol.Play.Response.t_of_yojson
+    |> Lwt.return
 
   let rec play_cards t ~game_state =
     match Ai.next_play t.ai ~game_state with
@@ -269,26 +218,18 @@ module Make (Ai : Ai_intf.S) = struct
     let%lwt () = end_turn t in
     Lwt.return ()
 
-  let on_notification (t : t) (notification : Jsonrpc.Notification.t) ~game_over
-      =
+  let on_notification (t : t) (notification : Jsonrpc.Notification.t) =
     let { Jsonrpc.Notification.method_; params; _ } = notification in
     match method_ with
     | "StartTurn" ->
         print_endline "It's my turn! Deciding what to do...";
-        let params = Option.value_exn params in
         let game_state =
-          Request.Util.parse_params params ~of_yojson:Game_state.t_of_yojson
+          parse_params_exn params ~of_yojson:Game_state.t_of_yojson
         in
         Lwt.async (fun () ->
             let%lwt () = play_turn t ~game_state in
             print_endline "Waiting for my turn to come around...";
             Lwt.return ())
-    | "GameOver" ->
-        print_endline "Game Over!";
-        printf "%s\n"
-          (notification |> Jsonrpc.Notification.yojson_of_t
-         |> Yojson.Safe.to_string);
-        Lwt.wakeup game_over ()
     | _ -> printf "Unknown notification: %s\n" method_
 
   let on_attack (t : t) (id : Jsonrpc.Id.t) (attack : Attack.Request.t) :
@@ -296,13 +237,7 @@ module Make (Ai : Ai_intf.S) = struct
     let { Attack.Request.card; data } = attack in
     printf "Attacked! %s\n" (Card.to_string card);
     let ok ?reaction ?data () =
-      let body =
-        match (reaction, data) with
-        | Some reaction, _ -> Attack.Response.Block.yojson_of_t { reaction }
-        | _, Some data -> Attack.Response.yojson_of_t { data }
-        | None, None -> yojson_of_unit ()
-      in
-      Jsonrpc.Response.ok id body
+      Jsonrpc.Response.ok id (Attack.Response.yojson_of_t { reaction; data })
     in
     match List.find t.current_hand ~f:(Card.equal Card.Moat) with
     | Some _ -> ok ~reaction:Moat ()
@@ -335,51 +270,58 @@ module Make (Ai : Ai_intf.S) = struct
     let { Jsonrpc.Request.method_; params; id; _ } = request in
     match method_ with
     | "StartGame" ->
-        let params = Option.value_exn params in
-        let { Start_game.kingdom; order } =
-          Request.Util.parse_params params ~of_yojson:Start_game.t_of_yojson
+        let request =
+          parse_params_exn params
+            ~of_yojson:Protocol.StartGame.Request.t_of_yojson
         in
         print_endline "The game has begun!";
-        printf "Kingdom : %s\n"
-          (Sexp.to_string (sexp_of_list Card.sexp_of_t kingdom));
-        printf "Turn Order: %s\n"
-          (Sexp.to_string (sexp_of_list Sexp.of_string order));
-        printf "%!";
-        Response.create_ok id |> Lwt.return
+        print_s (Protocol.StartGame.Request.sexp_of_t request);
+        Jsonrpc.Response.ok id (Protocol.StartGame.Response.yojson_of_t ())
+        |> Lwt.return
     | "Harbinger" | "Vassal" | "Poacher" | "ThroneRoom" | "Library" | "Sentry"
       ->
         let%lwt () = Lwt_mvar.put t.play_request request in
         Lwt_mvar.take t.play_response
     | "Attack" ->
-        let params = Option.value_exn params in
         let attack =
-          Request.Util.parse_params params ~of_yojson:Attack.Request.t_of_yojson
+          parse_params_exn params ~of_yojson:Attack.Request.t_of_yojson
         in
-        Lwt.return (on_attack t id attack)
+        on_attack t id attack |> Lwt.return
     | "GameOver" ->
-        print_endline "Game Over!";
-        printf "%s\n"
-          (request |> Jsonrpc.Request.yojson_of_t |> Yojson.Safe.to_string);
-        let rematch = false in
+        let { Protocol.GameOver.Request.result; scores } =
+          parse_params_exn params
+            ~of_yojson:Protocol.GameOver.Request.t_of_yojson
+        in
+        printf "Game Over! Result: %s\n" result;
+        Map.iteri scores ~f:(fun ~key ~data -> printf "%s: %n\n" key data);
         Lwt.wakeup game_over ();
-        Jsonrpc.Response.ok id (Resp.yojson_of_rematch { rematch })
+        Jsonrpc.Response.ok id
+          (Protocol.GameOver.Response.yojson_of_t { rematch = t.rematch })
         |> Lwt.return
-    (* Add requests for attacks and cards here. *)
-    | _ -> failwith "Unknown request"
+    | _ -> failwith (sprintf "Received unknown request: %s" method_)
 
-  let main ~(url : string) ~(log_traffic : bool) : unit Lwt.t =
-    let run_until, game_over = Lwt.wait () in
+  let main ~(url : string) ~(log_traffic : bool) ~(games : int) : unit Lwt.t =
+    (* Awkward recursive knot, so that we can use t in on_notification
+       and on_request. *)
     let tref = ref None in
+    let game_over_ref = ref None in
+    let get_game_over () = Option.value_exn !game_over_ref in
+    let get_t () = Option.value_exn !tref in
     let%lwt conn =
       Conn.create ~url
         ~on_request:(fun req ->
-          on_request (Option.value_exn !tref) req ~game_over)
-        ~on_notification:(fun notif ->
-          on_notification (Option.value_exn !tref) notif ~game_over)
+          on_request (get_t ()) req ~game_over:(get_game_over ()))
+        ~on_notification:(fun notif -> on_notification (get_t ()) notif)
         ~log_traffic
     in
-    let ai = Ai.create () in
-    let t = create ~conn ~ai in
-    tref := Some t;
-    run_until
+    let rec loop ~games =
+      let run_until, game_over = Lwt.wait () in
+      let ai = Ai.create () in
+      let t = create ~conn ~ai ~rematch:(games > 1) in
+      tref := Some t;
+      game_over_ref := Some game_over;
+      let%lwt () = run_until in
+      if games > 1 then loop ~games:(games - 1) else Lwt.return ()
+    in
+    loop ~games
 end

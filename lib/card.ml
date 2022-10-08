@@ -37,7 +37,7 @@ module T = struct
     | Sentry
     | Witch
     | Artisan
-  [@@deriving yojson, ord, sexp, eq]
+  [@@deriving yojson, ord, sexp]
 end
 
 include T
@@ -72,11 +72,16 @@ let is_victory = function
 
 let is_treasure = function Copper | Silver | Gold -> true | _ -> false
 
-let value_as_treasure = function
-  | Copper -> 1
-  | Silver -> 2
-  | Gold -> 3
+let victory_points t ~number_of_cards =
+  match t with
+  | Estate -> 1
+  | Duchy -> 3
+  | Province -> 6
+  | Gardens -> number_of_cards / 10
+  | Curse -> -1
   | _ -> 0
+
+let treasure_value = function Copper -> 1 | Silver -> 2 | Gold -> 3 | _ -> 0
 
 let cost = function
   | Copper -> 0

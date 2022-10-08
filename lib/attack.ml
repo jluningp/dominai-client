@@ -74,10 +74,9 @@ module Response = struct
       | m -> Bureaucrat m
   end
 
-  module Block = struct
-    type t = { reaction : Card.t }
-    [@@deriving yojson] [@@yojson.allow_extra_fields]
-  end
-
-  type t = { data : Data.t } [@@deriving yojson] [@@yojson.allow_extra_fields]
+  type t = {
+    reaction : Card.t option; [@yojson.option]
+    data : Data.t option; [@yojson.option]
+  }
+  [@@deriving yojson]
 end

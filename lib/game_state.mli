@@ -1,10 +1,11 @@
-open Core
+open! Core
 
 type t = {
   hand : Card.t list;
   discard : int;
   deck : int;
   supply : Supply.t;
+  (* Fields that are only available during your turn. *)
   trash : Card.t list;
   buys : int;
   actions : int;
@@ -12,4 +13,4 @@ type t = {
   in_play : Card.t list;
   phase : string list;
 }
-[@@deriving yojson, sexp] [@@yojson.allow_extra_fields]
+[@@deriving yojson, sexp]
