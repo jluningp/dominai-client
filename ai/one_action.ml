@@ -10,9 +10,9 @@ let create () = { cards = [] }
 (* The single action card to play *)
 let action_play (_ : t) ~(game_state : Game_state.t) =
   ignore game_state;
-  Some Play.Smithy
+  Some (Play.Workshop Card.Silver)
 
-let action_card = Card.Smithy
+let action_card = Card.Workshop
 
 (* Card tracking *)
 let add_card t card = t.cards <- card :: t.cards
@@ -52,7 +52,7 @@ let next_buy t ~(game_state : Game_state.t) =
       | n when n >= 8 && c Province -> Some Card.Province
       | n when n >= 6 && c Gold -> Some Gold
       (* This needs to change if we pick a more expensive action card. *)
-      | n when n >= 4 && c action_card -> Some action_card
+      | n when n >= 3 && c action_card -> Some action_card
       | n when n >= 3 && c Silver -> Some Silver
       | _ -> None
   in
