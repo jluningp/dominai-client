@@ -3,27 +3,31 @@ open Import
 
 type t = { mutable cards : Card.t list }
 
-let create () = { cards = [] }
+let create () =
+  {
+    cards =
+      List.init 7 ~f:(fun _ -> Card.Copper)
+      @ List.init 3 ~f:(fun _ -> Card.Estate);
+  }
 
-(* "Cellar","Market","Merchant","Militia","Mine","Moat","Remodel","Smithy","Village","Workshop" *)
+let rec play_card_from_topdeck (_ : Game_state.t) (card : Card.t) =
+  match card with
+  | Card.Vassal -> Some (Play.Vassal { play_card_from_topdeck })
+  | _ -> None
 
-(* The single action card to play *)
-let action_play (_ : t) ~(game_state : Game_state.t) =
-  ignore game_state;
-  Some (Play.Workshop Card.Silver)
-
-let action_card = Card.Workshop
+let action_card = Card.Vassal
+let action_play = Play.Vassal { play_card_from_topdeck }
+let action_card_count = 10
 
 (* Card tracking *)
 let add_card t card = t.cards <- card :: t.cards
 let trash_card t card = t.cards <- List.diff t.cards [ card ]
 
-let next_action (t : t) ~(game_state : Game_state.t) =
+let next_action (_ : t) ~(game_state : Game_state.t) =
   if game_state.actions > 0 then
-    Option.some_if
-      (List.exists game_state.hand ~f:(Card.equal action_card))
-      (action_play t ~game_state)
-    |> Option.join
+    if List.exists game_state.hand ~f:(Card.equal action_card) then
+      Some action_play
+    else None
   else None
 
 let next_treasure (_ : t) ~(game_state : Game_state.t) =
@@ -43,6 +47,8 @@ let can_buy card ~(game_state : Game_state.t) =
   | None -> false
   | Some count -> count > 0
 
+let count_card t card = List.count t.cards ~f:(Card.equal card)
+
 let next_buy t ~(game_state : Game_state.t) =
   let buy =
     if game_state.buys <= 0 then None
@@ -52,7 +58,10 @@ let next_buy t ~(game_state : Game_state.t) =
       | n when n >= 8 && c Province -> Some Card.Province
       | n when n >= 6 && c Gold -> Some Gold
       (* This needs to change if we pick a more expensive action card. *)
-      | n when n >= 3 && c action_card -> Some action_card
+      | n
+        when n >= 3 && c action_card
+             && count_card t action_card < action_card_count ->
+          Some action_card
       | n when n >= 3 && c Silver -> Some Silver
       | _ -> None
   in
