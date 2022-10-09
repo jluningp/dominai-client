@@ -86,3 +86,5 @@ let on_bandit (t : t) ~top_two_cards =
   (* Track which cards exist in the deck correctly. *)
   Option.iter trash ~f:(trash_card t);
   trash
+
+let on_witch t = t.cards <- Card.Curse :: t.cards

@@ -104,15 +104,6 @@ module Make (Ai : Ai_intf.S) = struct
       in
       Lwt_mvar.put t.play_response response
 
-  let on_throne_room t ~game_state:_ ~card_to_play =
-    let%lwt request = Lwt_mvar.take t.play_request in
-    let { Jsonrpc.Request.id; _ } = request in
-    let response =
-      Jsonrpc.Response.ok id
-        (Protocol.ThroneRoom.Response.yojson_of_t card_to_play)
-    in
-    Lwt_mvar.put t.play_response response
-
   let on_sentry t ~game_state:_ ~what_to_do =
     let%lwt request = Lwt_mvar.take t.play_request in
     let { Jsonrpc.Request.params; id; _ } = request in
@@ -172,6 +163,16 @@ module Make (Ai : Ai_intf.S) = struct
         match play with
         | None -> Lwt.return ()
         | Some play -> handle_card_specific_request t play ~game_state)
+
+  and on_throne_room t ~game_state ~card_to_play =
+    let%lwt request = Lwt_mvar.take t.play_request in
+    let { Jsonrpc.Request.id; _ } = request in
+    let response =
+      Jsonrpc.Response.ok id
+        (Protocol.ThroneRoom.Response.yojson_of_t card_to_play)
+    in
+    let%lwt () = Lwt_mvar.put t.play_response response in
+    handle_card_specific_request t card_to_play ~game_state
 
   and handle_card_specific_request (t : t) card ~game_state =
     match card with
@@ -268,7 +269,9 @@ module Make (Ai : Ai_intf.S) = struct
             let discard = Ai.on_militia t.ai ~current_hand:t.current_hand in
             t.current_hand <- List.diff t.current_hand discard;
             ok ~data:(Militia discard) ()
-        | Witch -> ok ()
+        | Witch ->
+            Ai.on_witch t.ai;
+            ok ()
         | Bandit ->
             let (Bandit top_two_cards) = Option.value_exn data in
             let trash = Ai.on_bandit t.ai ~top_two_cards in
