@@ -20,6 +20,7 @@ let params : (unit -> unit) Command.Param.t =
       | "avg-chapel" -> (module Dominai_ai.Avg_chapel : Ai_intf.S)
       | "smart-chapel" -> (module Dominai_ai.Smart_chapel : Ai_intf.S)
       | "one-action" -> (module Dominai_ai.One_action : Ai_intf.S)
+      | "engine" -> (module Dominai_ai.Engine : Ai_intf.S)
       | _ -> failwith "Unknown strategy type"
     in
     let (module Client) = (module Client.Make (Ai) : Client.S) in
